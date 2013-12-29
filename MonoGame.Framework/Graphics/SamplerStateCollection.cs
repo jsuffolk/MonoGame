@@ -43,6 +43,7 @@
  
 using System;
 using System.Collections.Generic;
+using SharpDX.Direct3D11;
 
 #if OPENGL
 #if MONOMAC
@@ -61,15 +62,18 @@ namespace Microsoft.Xna.Framework.Graphics
 
     public sealed class SamplerStateCollection
 	{
+        private bool _isPixel;
+
         private SamplerState[] _samplers;
 
 #if DIRECTX
         private int _d3dDirty;
 #endif
 
-		internal SamplerStateCollection( int maxSamplers )
+        internal SamplerStateCollection(int maxSamplers, bool isPixel)
         {
             _samplers = new SamplerState[maxSamplers];
+            _isPixel = isPixel;
 		    Clear();
         }
 		
@@ -122,7 +126,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
             // NOTE: We make the assumption here that the caller has
             // locked the d3dContext for us to use.
-            var pixelShaderStage = device._d3dContext.PixelShader;
+
+            var shaderStage = _isPixel 
+                ? device._d3dContext.PixelShader as CommonShaderStage
+                : device._d3dContext.VertexShader as CommonShaderStage;
 
             for (var i = 0; i < _samplers.Length; i++)
             {
@@ -135,7 +142,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 if (sampler != null)
                     state = sampler.GetState(device);
 
-                pixelShaderStage.SetSampler(i, state);
+                shaderStage.SetSampler(i, state);
 
                 _d3dDirty &= ~mask;
                 if (_d3dDirty == 0)

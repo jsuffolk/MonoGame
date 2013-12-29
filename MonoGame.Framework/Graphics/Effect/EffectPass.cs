@@ -98,6 +98,21 @@ namespace Microsoft.Xna.Framework.Graphics
             {
                 device.VertexShader = _vertexShader;
 
+                foreach (var sampler in _vertexShader.Samplers)
+                {
+                    var param = _effect.Parameters[sampler.parameter];
+                    var texture = param.Data as Texture;
+
+                    // If there is no texture assigned then skip it
+                    // and leave whatever set directly on the device.
+                    if (texture != null)
+                        device.VertexTextures[sampler.textureSlot] = texture;
+
+                    // If there is a sampler state set it.
+                    if (sampler.state != null)
+                        device.VertexSamplerStates[sampler.samplerSlot] = sampler.state;
+                }
+
                 // Update the constant buffers.
                 for (var c = 0; c < _vertexShader.CBuffers.Length; c++)
                 {
@@ -120,11 +135,11 @@ namespace Microsoft.Xna.Framework.Graphics
 					// If there is no texture assigned then skip it
 					// and leave whatever set directly on the device.
 					if (texture != null)
-						device.Textures[sampler.textureSlot] = texture;
+						device.PixelTextures[sampler.textureSlot] = texture;
 
                     // If there is a sampler state set it.
                     if (sampler.state != null)
-                        device.SamplerStates[sampler.samplerSlot] = sampler.state;
+                        device.PixelSamplerStates[sampler.samplerSlot] = sampler.state;
                 }
                 
                 // Update the constant buffers.

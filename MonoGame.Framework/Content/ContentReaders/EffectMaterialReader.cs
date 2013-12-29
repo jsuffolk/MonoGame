@@ -63,12 +63,66 @@ namespace Microsoft.Xna.Framework.Content
 #if WINRT
 					if (typeof(Texture).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
 #else
-					if (typeof(Texture).IsAssignableFrom (item.Value.GetType ())) {
+                    if (typeof(Texture).IsAssignableFrom(item.Value.GetType()))
+                    {
 #endif
-						parameter.SetValue ((Texture)item.Value);
-					} else {
-						throw new NotImplementedException ();
-					}
+                        parameter.SetValue((Texture)item.Value);
+                    }
+#if WINRT
+					else if (typeof(Vector2).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
+#else
+                    else if (typeof(Vector2).IsAssignableFrom(item.Value.GetType()))
+                    {
+#endif
+                        parameter.SetValue((Vector2)item.Value);
+                    }
+#if WINRT
+					else if (typeof(Vector3).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
+#else
+                    else if (typeof(Vector3).IsAssignableFrom(item.Value.GetType()))
+                    {
+#endif
+                        parameter.SetValue((Vector3)item.Value);
+                    }
+#if WINRT
+					else if (typeof(Vector4).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
+#else
+                    else if (typeof(Vector4).IsAssignableFrom(item.Value.GetType()))
+                    {
+#endif
+                        parameter.SetValue((Vector4)item.Value);
+                    }
+#if WINRT
+					else if (typeof(Single).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
+#else
+                    else if (typeof(Single).IsAssignableFrom(item.Value.GetType()))
+                    {
+#endif
+                        parameter.SetValue((Single)item.Value);
+                    }
+#if WINRT
+					else if (typeof(int).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
+#else
+                    else if (typeof(int).IsAssignableFrom(item.Value.GetType()))
+                    {
+#endif
+                        parameter.SetValue((int)item.Value);
+                    }
+#if WINRT
+					else if (typeof(long).GetTypeInfo().IsAssignableFrom(item.Value.GetType().GetTypeInfo())){
+#else
+                    else if (typeof(long).IsAssignableFrom(item.Value.GetType()))
+                    {
+#endif
+                        parameter.SetValue((long)item.Value);
+                    }
+                    else
+                    {
+                        throw new Exception(
+                            string.Format(
+                            "EffectMaterialReader Failure '{0}' on Type: '{1}", item.Key, item.Value.GetType()
+                            ));
+                    }
 				} else {
 					Debug.WriteLine ("No parameter " + item.Key);
 				}

@@ -119,9 +119,13 @@ namespace Microsoft.Xna.Framework.Graphics
 		private DrawBuffersEnum[] _drawBuffers;
 #endif
 
-        public TextureCollection Textures { get; private set; }
+        public TextureCollection VertexTextures { get; private set; }
 
-        public SamplerStateCollection SamplerStates { get; private set; }
+        public TextureCollection PixelTextures { get; private set; }
+
+        public SamplerStateCollection VertexSamplerStates { get; private set; }
+
+        public SamplerStateCollection PixelSamplerStates { get; private set; }
 
         // On Intel Integrated graphics, there is a fast hw unit for doing
         // clears to colors where all components are either 0 or 255.
@@ -441,8 +445,11 @@ namespace Microsoft.Xna.Framework.Graphics
             _extensions = GetGLExtensions();
 #endif // OPENGL
 
-            Textures = new TextureCollection (MaxTextureSlots);
-			SamplerStates = new SamplerStateCollection (MaxTextureSlots);
+            VertexTextures = new TextureCollection (MaxTextureSlots, false);
+			VertexSamplerStates = new SamplerStateCollection (MaxTextureSlots, false);
+
+            PixelTextures = new TextureCollection(MaxTextureSlots, true);
+            PixelSamplerStates = new SamplerStateCollection(MaxTextureSlots, true);
 
         }
 
@@ -524,8 +531,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
             // Clear the texture and sampler collections forcing
             // the state to be reapplied.
-            Textures.Clear();
-            SamplerStates.Clear();
+            VertexTextures.Clear();
+            VertexSamplerStates.Clear();
+            PixelTextures.Clear();
+            PixelSamplerStates.Clear();
 
             ClearLayouts();
 
@@ -1723,7 +1732,10 @@ namespace Microsoft.Xna.Framework.Graphics
                 // Make sure none of the new targets are bound
                 // to the device as a texture resource.
                 lock (_d3dContext)
-                    Textures.ClearTargets(this, _currentRenderTargetBindings);
+                {
+                    VertexTextures.ClearTargets(this, _currentRenderTargetBindings);
+                    PixelTextures.ClearTargets(this, _currentRenderTargetBindings);
+                }
 
                 for (var i = 0; i < _currentRenderTargetCount; i++)
                 {
@@ -2145,9 +2157,11 @@ namespace Microsoft.Xna.Framework.Graphics
             _vertexConstantBuffers.SetConstantBuffers(this, _shaderProgram);
             _pixelConstantBuffers.SetConstantBuffers(this, _shaderProgram);
 #endif
+            VertexTextures.SetTextures(this);
+            VertexSamplerStates.SetSamplers(this);
 
-            Textures.SetTextures(this);
-            SamplerStates.SetSamplers(this);
+            PixelTextures.SetTextures(this);
+            PixelSamplerStates.SetSamplers(this);
         }
 
 #if DIRECTX

@@ -105,7 +105,7 @@ namespace Microsoft.Xna.Framework.Graphics
 			gd.BlendState = _blendState;
 			gd.DepthStencilState = _depthStencilState;
 			gd.RasterizerState = _rasterizerState;
-			gd.SamplerStates[0] = _samplerState;
+			gd.PixelSamplerStates[0] = _samplerState;
 			
             // Setup the default sprite effect.
 			var vp = gd.Viewport;
@@ -132,8 +132,8 @@ namespace Microsoft.Xna.Framework.Graphics
 		
         void CheckValid(Texture2D texture)
         {
-            if (texture == null)
-                throw new ArgumentNullException("texture");
+            //if (texture == null)
+            //    throw new ArgumentNullException("texture");
             if (!_beginCalled)
                 throw new InvalidOperationException("Draw was called, but Begin has not yet been called. Begin must be called successfully before you can call Draw.");
         }
@@ -311,8 +311,10 @@ namespace Microsoft.Xna.Framework.Graphics
 			      sourceRectangle,
 			      color,
 			      rotation,
-			      new Vector2(origin.X * ((float)destinationRectangle.Width / (float)( (sourceRectangle.HasValue && sourceRectangle.Value.Width != 0) ? sourceRectangle.Value.Width : texture.Width)),
-                        			origin.Y * ((float)destinationRectangle.Height) / (float)( (sourceRectangle.HasValue && sourceRectangle.Value.Height != 0) ? sourceRectangle.Value.Height : texture.Height)),
+                  texture == null 
+                    ? origin 
+                    : new Vector2(origin.X * ((float)destinationRectangle.Width / (float)( (sourceRectangle.HasValue && sourceRectangle.Value.Width != 0) ? sourceRectangle.Value.Width : texture.Width)),
+                        origin.Y * ((float)destinationRectangle.Height) / (float)( (sourceRectangle.HasValue && sourceRectangle.Value.Height != 0) ? sourceRectangle.Value.Height : texture.Height)),
 			      effect,
 			      depth,
 			      true);
@@ -333,19 +335,32 @@ namespace Microsoft.Xna.Framework.Graphics
 			item.Depth = depth;
 			item.Texture = texture;
 
-			if (sourceRectangle.HasValue) {
-				_tempRect = sourceRectangle.Value;
-			} else {
-				_tempRect.X = 0;
-				_tempRect.Y = 0;
-				_tempRect.Width = texture.Width;
-				_tempRect.Height = texture.Height;				
-			}
-			
-			_texCoordTL.X = _tempRect.X / (float)texture.Width;
-			_texCoordTL.Y = _tempRect.Y / (float)texture.Height;
-			_texCoordBR.X = (_tempRect.X + _tempRect.Width) / (float)texture.Width;
-			_texCoordBR.Y = (_tempRect.Y + _tempRect.Height) / (float)texture.Height;
+            if (texture != null)
+            {
+                if (sourceRectangle.HasValue)
+                {
+                    _tempRect = sourceRectangle.Value;
+                }
+                else
+                {
+                    _tempRect.X = 0;
+                    _tempRect.Y = 0;
+                    _tempRect.Width = texture.Width;
+                    _tempRect.Height = texture.Height;
+                }
+
+                _texCoordTL.X = _tempRect.X / (float)texture.Width;
+                _texCoordTL.Y = _tempRect.Y / (float)texture.Height;
+                _texCoordBR.X = (_tempRect.X + _tempRect.Width) / (float)texture.Width;
+                _texCoordBR.Y = (_tempRect.Y + _tempRect.Height) / (float)texture.Height;
+            }
+            else
+            {
+                _texCoordTL.X = 0;
+                _texCoordTL.Y = 0;
+                _texCoordBR.X = 1;
+                _texCoordBR.Y = 1;
+            }
 
 			if ((effect & SpriteEffects.FlipVertically) != 0) {
                 var temp = _texCoordBR.Y;

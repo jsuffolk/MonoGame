@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SharpDX.Direct3D11;
 
 #if OPENGL
 #if MONOMAC
@@ -19,6 +20,8 @@ namespace Microsoft.Xna.Framework.Graphics
 {
     public sealed class TextureCollection
     {
+        private bool _isPixel;
+
         private readonly Texture[] _textures;
 
 #if OPENGL
@@ -27,9 +30,10 @@ namespace Microsoft.Xna.Framework.Graphics
 
         private int _dirty;
 
-        internal TextureCollection(int maxTextures)
+        internal TextureCollection(int maxTextures, bool isPixel)
         {
             _textures = new Texture[maxTextures];
+            _isPixel = isPixel;
             _dirty = int.MaxValue;
 #if OPENGL
             _targets = new TextureTarget[maxTextures];
@@ -115,7 +119,9 @@ namespace Microsoft.Xna.Framework.Graphics
 #if DIRECTX
             // NOTE: We make the assumption here that the caller has
             // locked the d3dContext for us to use.
-            var pixelShaderStage = device._d3dContext.PixelShader;
+            var shaderStage = _isPixel
+                ? device._d3dContext.PixelShader as CommonShaderStage
+                : device._d3dContext.VertexShader as CommonShaderStage;
 #endif
 
             for (var i = 0; i < _textures.Length; i++)
@@ -145,9 +151,9 @@ namespace Microsoft.Xna.Framework.Graphics
                 }
 #elif DIRECTX
                 if (_textures[i] == null || _textures[i].IsDisposed)
-                    pixelShaderStage.SetShaderResource(i, null);
+                    shaderStage.SetShaderResource(i, null);
                 else
-                    pixelShaderStage.SetShaderResource(i, _textures[i].GetShaderResourceView());
+                    shaderStage.SetShaderResource(i, _textures[i].GetShaderResourceView());
 #elif PSM
                 // FIXME: 1d/3d textures
                 var texture2d = _textures[i] as Texture2D;

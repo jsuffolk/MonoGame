@@ -250,7 +250,7 @@ namespace Microsoft.Xna.Framework.Graphics
 
                         tex = item.Texture;
                         startIndex = index = 0;
-                        _device.Textures[0] = tex;
+                        _device.PixelTextures[0] = tex;
                     }
 
                     // store the SpriteBatchItem data in our vertexArray
